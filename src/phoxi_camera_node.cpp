@@ -295,6 +295,7 @@ void publish_frame(pho::api::PFrame MyFrame){
         sensor_msgs::PointCloud2 output_cloud;
         pcl::toROSMsg(cloud, output_cloud);
         output_cloud.header.frame_id = "map";
+        output_cloud.header.stamp = timeNow;
         pub_cloud.publish(output_cloud);
         pub_normal_map.publish(normal_map);
         pub_confidence_map.publish(confidence_map);

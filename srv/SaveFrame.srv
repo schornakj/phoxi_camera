@@ -1,5 +1,13 @@
 int64 in        # id of scan returned by trigger_image service. If id is negative new frame is taken (no need to call trigger_image service).
 string path
+bool binary_file
+bool normalize_texture
+bool store_point_cloud
+bool store_normal_map
+bool store_depth_map
+bool store_texture
+bool store_confidence_map
+bool unordered
 ---
 string message
 bool success

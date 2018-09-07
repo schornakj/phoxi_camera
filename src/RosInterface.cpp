@@ -190,7 +190,8 @@ bool RosInterface::saveFrame(phoxi_camera::SaveFrame::Request &req, phoxi_camera
             res.message = "Null frame!";
             return true;
         }
-        frame->SaveAsPly(req.path);
+        // TODO: Use default values defined in function. Shouldn't require every option to be filled in.
+        frame->SaveAsPly(req.path, req.binary_file, req.normalize_texture, req.store_point_cloud, req.store_normal_map, req.store_depth_map, req.store_texture, req.store_confidence_map, req.unordered);
         res.message = OKRESPONSE;
         res.success = true;
     }catch (PhoXiInterfaceException &e){
@@ -270,6 +271,7 @@ void RosInterface::publishFrame(pho::api::PFrame frame) {
     normal_map.header = header;
     depth_map.header = header;
 
+    // TODO: Conversions seem very lossy
     cv::Mat cvGreyTexture(frame->Texture.Size.Height, frame->Texture.Size.Width, CV_32FC1, frame->Texture.operator[](0));
     cv::normalize(cvGreyTexture, cvGreyTexture, 0, 255, CV_MINMAX);
     cvGreyTexture.convertTo(cvGreyTexture,CV_8U);

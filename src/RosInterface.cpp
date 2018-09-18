@@ -31,15 +31,16 @@ RosInterface::RosInterface() : nh("~"), dynamicReconfigureServer(dynamicReconfig
     disconnectCameraService = nh.advertiseService("disconnect_camera", &RosInterface::disconnectCamera, this);
     getHardwareIdentificationService = nh.advertiseService("get_hardware_indentification", &RosInterface::getHardwareIdentification, this);
     getSupportedCapturingModesService = nh.advertiseService("get_supported_capturing_modes", &RosInterface::getSupportedCapturingModes, this);
-    setCoordianteSpaceService = nh.advertiseService("V2/set_transformation",&RosInterface::setTransformation, this);
-    setTransformationService = nh.advertiseService("V2/set_coordination_space",&RosInterface::setCoordianteSpace, this);
+    setTransformationService = nh.advertiseService("V2/set_transformation",&RosInterface::setTransformation, this);
+    setCoordinateSpaceService = nh.advertiseService("V2/set_coordination_space",&RosInterface::setCoordianteSpace, this);
 
     //create publishers
     bool latch_tipics;
     int topic_queue_size;
     nh.param<bool>("latch_tipics", latch_tipics, false);
     nh.param<int>("topic_queue_size", topic_queue_size, 1);
-    cloudPub = nh.advertise <pcl::PointCloud<pcl::PointXYZ >>("pointcloud", 1,latch_tipics);
+    // NOTE: the publisher does actually publish a PC2 message. Does it need to be advertised as a PC2?
+    cloudPub = nh.advertise <sensor_msgs::PointCloud2>("pointcloud", 1,latch_tipics);
     normalMapPub = nh.advertise < sensor_msgs::Image > ("normal_map", topic_queue_size,latch_tipics);
     confidenceMapPub = nh.advertise < sensor_msgs::Image > ("confidence_map", topic_queue_size,latch_tipics);
     rawTexturePub = nh.advertise < sensor_msgs::Image > ("texture", topic_queue_size,latch_tipics);
@@ -342,6 +343,7 @@ bool RosInterface::setTransformation(phoxi_camera::SetTransformationMatrix::Requ
     try {
         Eigen::Affine3d transform;
         tf::transformMsgToEigen(req.transform,transform);
+        ROS_DEBUG_STREAM("Received set transform request: " << req);
         PhoXiInterface::setTransformation(transform.matrix(),req.coordinates_space,req.set_space,req.save_settings);
         //update dynamic reconfigure
         dynamicReconfigureConfig.coordination_space = req.coordinates_space;
@@ -356,6 +358,7 @@ bool RosInterface::setTransformation(phoxi_camera::SetTransformationMatrix::Requ
 }
 
 void RosInterface::dynamicReconfigureCallback(phoxi_camera::phoxi_cameraConfig &config, uint32_t level) {
+  ROS_DEBUG_STREAM("Dynamic reconfig requested");
     if(!PhoXiInterface::isConnected()){
         config = this->dynamicReconfigureConfig;
         return;

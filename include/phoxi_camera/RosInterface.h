@@ -91,8 +91,8 @@ private:
     ros::ServiceServer disconnectCameraService;
     ros::ServiceServer getHardwareIdentificationService;
     ros::ServiceServer getSupportedCapturingModesService;
-    ros::ServiceServer setCoordianteSpaceService;
     ros::ServiceServer setTransformationService;
+    ros::ServiceServer setCoordinateSpaceService;
 
     //ros publishers
     ros::Publisher cloudPub;
